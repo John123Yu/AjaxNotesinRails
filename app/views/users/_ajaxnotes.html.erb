@@ -1,0 +1,46 @@
+	<% @notes.each do |note| %>
+	<div class = "note" id = "<%= note.id %>">
+		<br>
+		<form class = "editNoteForm" id = "form<%= note.id %>">
+			<input name="authenticity_token" value="<%= form_authenticity_token %>" type="hidden">
+			<input name = "title" id = "title<%= note.id %>" type = "text" value = "<%= note.title %>">
+			<br><br>
+			<textarea name = "content" id = "content<%= note.id %>" col = "25" rows = "8"><%= note.content %></textarea>
+			<input type = "hidden" name = "id" value = "<%= note.id %>">
+		</form>
+		<form action = '/deleteNote' id = "deleteform<%= note.id %>" method = "post">
+			<input name="authenticity_token" value="<%= form_authenticity_token %>" type="hidden">
+			<input type = "hidden" name = "id" value = "<%= note.id %>">
+			<input type = "submit" value = "Delete">
+		</form>
+	</div>
+	<% end %>
+
+<script type="text/javascript">
+	<% @notes.each do |note| %>
+	$('#' + <%=note.id%>).on('focusout', function() {
+		console.log("focusout")
+	    $.ajax({
+	      url: '/editNote',
+	      method: 'post',
+	      data: $('#form' + <%=note.id%>).serialize(),
+	      success: function(serverResponse){
+	      	$('.allNotes').html(serverResponse)
+	      }
+	    })
+	    return false;
+	})
+	$('#deleteform' + <%=note.id%>).submit( function() {
+		console.log('delete')
+	    $.ajax({
+	      url: '/deleteNote',
+	      method: 'post',
+	      data: $(this).serialize(),
+	      success: function(serverResponse){
+	      	$('.allNotes').html(serverResponse)
+	      }
+	    })
+	    return false;
+	})
+	<% end %>
+</script>

@@ -1,0 +1,68 @@
+<html>
+<head>
+	<title>Ajax Notes</title>
+	<script src="https://code.jquery.com/jquery-3.1.1.js" integrity="sha256-16cdPddA6VdVInumRGo6IbivbERE8p7CQR3HzTBuELA=" crossorigin="anonymous"></script>
+</head>
+<style type="text/css">
+	.note {
+		background-color: lightyellow;
+		display: inline-block;
+		width: 200px;
+		height: 230px;
+		overflow: auto;
+	}
+</style>
+<body>
+	<h1>Ajax Notes</h1>
+	<div class = "allNotes">
+	<%= render partial: 'ajaxnotes', :locals => {:notes => @notes} %>
+	</div>
+	<form action = '/addNote' class = "addNoteAjax" method = "post">
+		<input name="authenticity_token" value="<%= form_authenticity_token %>" type="hidden">
+		<input type = "text" name = "note[title]"><br>
+		<textarea name = "note[content]"></textarea><br>
+		<input class = "" type="submit" value="Add Note">
+	</form>
+
+</body>
+<script type="text/javascript">
+	<% @notes.each do |note| %>
+	$('#' + <%=note.id%>).on('focusout', function() {
+		console.log("focusout")
+	    $.ajax({
+	      url: '/editNote',
+	      method: 'post',
+	      data: $('#form' + <%=note.id%>).serialize(),
+	      success: function(serverResponse){
+	      	$('.allNotes').html(serverResponse)
+	      }
+	    })
+	    return false;
+	})
+	$('#deleteform' + <%=note.id%>).submit( function() {
+		console.log('delete')
+	    $.ajax({
+	      url: '/deleteNote',
+	      method: 'post',
+	      data: $(this).serialize(),
+	      success: function(serverResponse){
+	      	$('.allNotes').html(serverResponse)
+	      }
+	    })
+	    return false;
+	})
+	<% end %>
+	$('.addNoteAjax').submit( function(e) {
+		console.log('submit')
+	    $.ajax({
+	      url: '/addNote',
+	      method: 'post',
+	      data: $(this).serialize(),
+	      success: function(serverResponse){
+	      	$('.allNotes').html(serverResponse)
+	      }
+	    })
+	    return false;
+	})
+</script>
+</html>
